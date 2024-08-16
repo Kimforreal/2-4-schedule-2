@@ -6,11 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isAdmin) {
         document.getElementById('scheduleContainer').style.display = 'block';
         document.getElementById('scheduleEditor').style.display = 'block';
-        generateDates();
     } else {
         document.getElementById('scheduleContainer').style.display = 'block';
-        generateDates();
     }
+    generateDates();
 });
 
 function checkPassword() {
@@ -37,7 +36,12 @@ function generateDates() {
             <div class="date-entry">
                 <strong>${dateString}</strong>
                 <div id="events-${dateString}"></div>
-                ${localStorage.getItem('isAdmin') === 'true' ? `<button onclick="editEvent('${dateString}')">일정 추가/수정</button>` : ''}
+                <div class="event-buttons">
+                    ${localStorage.getItem('isAdmin') === 'true' ? `
+                        <button onclick="editEvent('${dateString}')">일정 추가/수정</button>
+                        <button onclick="deleteEvent('${dateString}')">삭제</button>
+                    ` : ''}
+                </div>
             </div>
         `;
     }
@@ -53,7 +57,7 @@ function loadEvents() {
     }
 }
 
-function addEvent() {
+function saveEvent() {
     const date = document.getElementById('newEventDate').value;
     const details = document.getElementById('newEventDetails').value;
     if (!date || !details) {
@@ -67,9 +71,9 @@ function addEvent() {
     }
     events[date].push(details);
     localStorage.setItem('events', JSON.stringify(events));
-    loadEvents();
     document.getElementById('newEventDate').value = '';
     document.getElementById('newEventDetails').value = '';
+    generateDates();
 }
 
 function editEvent(date) {
@@ -77,4 +81,16 @@ function editEvent(date) {
     const details = (events[date] || []).join('\n');
     document.getElementById('newEventDate').value = date;
     document.getElementById('newEventDetails').value = details;
+}
+
+function deleteEvent(date) {
+    let events = JSON.parse(localStorage.getItem('events')) || {};
+    delete events[date];
+    localStorage.setItem('events', JSON.stringify(events));
+    generateDates();
+}
+
+function cancelEdit() {
+    document.getElementById('newEventDate').value = '';
+    document.getElementById('newEventDetails').value = '';
 }
