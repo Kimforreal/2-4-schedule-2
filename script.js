@@ -1,4 +1,4 @@
-import { auth, firestore, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from './firebase-config.js';
+import { auth, firestore, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from './firebase-config.js';
 
 const PASSWORD = '1014'; // 비밀번호 설정
 const PASSWORD_FIELD_ID = 'passwordInput';
@@ -6,19 +6,13 @@ const SCHEDULE_CONTAINER_ID = 'scheduleContainer';
 const ADD_EVENT_BUTTON_ID = 'addEventButton';
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeAuth();
+    initializeUI();
 });
 
-function initializeAuth() {
-    onAuthStateChanged(auth, user => {
-        if (user) {
-            document.getElementById(SCHEDULE_CONTAINER_ID).style.display = 'block';
-            generateDates();
-        } else {
-            document.getElementById(SCHEDULE_CONTAINER_ID).style.display = 'none';
-            document.getElementById('authSection').style.display = 'block';
-        }
-    });
+function initializeUI() {
+    document.getElementById(SCHEDULE_CONTAINER_ID).style.display = 'none';
+    document.getElementById(ADD_EVENT_BUTTON_ID).style.display = 'none';
+    generateDates();
 }
 
 function verifyPassword() {
@@ -44,7 +38,7 @@ async function generateDates() {
 
         const dateDiv = document.createElement('div');
         dateDiv.classList.add('date-entry');
-        dateDiv.innerHTML = `<strong>${date}</strong>`;
+        dateDiv.innerHTML = `<strong>&#8226; ${date}</strong>`; // 큰 점 추가
         
         events.forEach((event, index) => {
             const eventDiv = document.createElement('div');
