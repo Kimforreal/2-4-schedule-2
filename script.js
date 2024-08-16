@@ -3,6 +3,7 @@ import { auth, firestore, GoogleAuthProvider, signInWithPopup, onAuthStateChange
 const PASSWORD = '1014'; // 비밀번호 설정
 const PASSWORD_FIELD_ID = 'passwordInput';
 const SCHEDULE_CONTAINER_ID = 'scheduleContainer';
+const ADD_EVENT_BUTTON_ID = 'addEventButton';
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeAuth();
@@ -26,6 +27,7 @@ function verifyPassword() {
     if (password === PASSWORD) {
         document.getElementById('authSection').style.display = 'none';
         document.getElementById(SCHEDULE_CONTAINER_ID).style.display = 'block';
+        document.getElementById(ADD_EVENT_BUTTON_ID).style.display = 'inline'; // 버튼 보이기
         generateDates();
     } else {
         alert('비밀번호가 올바르지 않습니다.');
@@ -50,8 +52,10 @@ async function generateDates() {
             eventDiv.classList.add('event-item');
             eventDiv.innerHTML = `${event}
                 <div class="event-buttons">
-                    <button onclick="openEditEventModal('${date}', ${index})">수정</button>
-                    <button onclick="openDeleteEventModal('${date}', ${index})">삭제</button>
+                    ${document.getElementById(ADD_EVENT_BUTTON_ID).style.display === 'inline' 
+                        ? `<button onclick="openEditEventModal('${date}', ${index})">수정</button>
+                           <button onclick="openDeleteEventModal('${date}', ${index})">삭제</button>` 
+                        : ''}
                 </div>`;
             dateDiv.appendChild(eventDiv);
         });
