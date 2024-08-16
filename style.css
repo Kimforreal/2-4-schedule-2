@@ -20,33 +20,12 @@ h1 {
     color: #4a90e2;
 }
 
-#authSection {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-#passwordInput {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-right: 10px;
-}
-
-button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    background-color: #4a90e2;
-    color: #fff;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #357ABD;
-}
-
 #scheduleContainer {
     margin-top: 20px;
+}
+
+#addEventButton {
+    margin-bottom: 20px;
 }
 
 .date-entry {
@@ -61,8 +40,21 @@ button:hover {
     border: 1px solid #ddd;
 }
 
-.event-buttons {
-    margin-top: 5px;
+.event-buttons button {
+    margin-right: 5px;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: #4a90e2;
+    color: #fff;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #357ABD;
 }
 
 .modal {
