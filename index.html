@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2주 일정 관리</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>2주 일정 관리</h1>
+    <div id="passwordPrompt">
+        <label for="password">비밀번호:</label>
+        <input type="password" id="password">
+        <button onclick="checkPassword()">확인</button>
+    </div>
+    <div id="scheduleContainer" style="display:none;">
+        <div id="dates"></div>
+        <div id="scheduleEditor" style="display:none;">
+            <h2>일정 추가/수정</h2>
+            <input type="text" id="newEventDate" placeholder="날짜 (YYYY-MM-DD)">
+            <textarea id="newEventDetails" placeholder="일정"></textarea>
+            <button onclick="addEvent()">추가/수정</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
