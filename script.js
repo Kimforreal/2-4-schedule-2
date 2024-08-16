@@ -1,77 +1,66 @@
-const PASSWORD = '1014';
-const TWO_WEEKS = 14; // 2주
+import { auth, firestore, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from './firebase-config.js';
+
+const PASSWORD = '1014'; // 비밀번호 설정
+const PASSWORD_FIELD_ID = 'passwordInput';
+const SCHEDULE_CONTAINER_ID = 'scheduleContainer';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const isAdmin = localStorage.getItem('isAdmin') === 'true';
-    if (isAdmin) {
-        document.getElementById('scheduleContainer').style.display = 'block';
-        generateDates();
-    } else {
-        document.getElementById('scheduleContainer').style.display = 'block';
-        generateDates();
-    }
+    initializeAuth();
 });
 
-function checkPassword() {
-    const password = document.getElementById('password').value;
+function initializeAuth() {
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById(SCHEDULE_CONTAINER_ID).style.display = 'block';
+            generateDates();
+        } else {
+            document.getElementById(SCHEDULE_CONTAINER_ID).style.display = 'none';
+            document.getElementById('authSection').style.display = 'block';
+        }
+    });
+}
+
+function verifyPassword() {
+    const password = document.getElementById(PASSWORD_FIELD_ID).value;
     if (password === PASSWORD) {
-        localStorage.setItem('isAdmin', 'true');
-        document.getElementById('passwordPrompt').style.display = 'none';
-        document.getElementById('scheduleContainer').style.display = 'block';
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById(SCHEDULE_CONTAINER_ID).style.display = 'block';
         generateDates();
     } else {
-        alert('비밀번호가 틀렸습니다.');
+        alert('비밀번호가 올바르지 않습니다.');
     }
 }
 
-function generateDates() {
-    const today = new Date();
-    let dateHTML = '';
-    for (let i = 0; i < TWO_WEEKS; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        const dateString = date.toISOString().split('T')[0]; // YYYY-MM-DD
-        dateHTML += `
-            <div class="date-entry">
-                <strong>${dateString}</strong>
-                <div id="events-${dateString}"></div>
+async function generateDates() {
+    const querySnapshot = await getDocs(collection(firestore, 'events'));
+    const datesDiv = document.getElementById('dates');
+    datesDiv.innerHTML = '';
+    querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const date = doc.id;
+        const events = data.events || [];
+
+        const dateDiv = document.createElement('div');
+        dateDiv.classList.add('date-entry');
+        dateDiv.innerHTML = `<strong>${date}</strong>`;
+        
+        events.forEach((event, index) => {
+            const eventDiv = document.createElement('div');
+            eventDiv.classList.add('event-item');
+            eventDiv.innerHTML = `${event}
                 <div class="event-buttons">
-                    ${localStorage.getItem('isAdmin') === 'true' ? `
-                        <button onclick="openAddEventModal('${dateString}')">일정 추가</button>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    }
-    document.getElementById('dates').innerHTML = dateHTML;
-    loadEvents();
-}
-
-function loadEvents() {
-    const events = JSON.parse(localStorage.getItem('events')) || {};
-    for (const [date, details] of Object.entries(events)) {
-        const eventsContainer = document.getElementById(`events-${date}`);
-        eventsContainer.innerHTML = details.map((detail, index) => `
-            <div class="event-item">
-                ${detail}
-                ${localStorage.getItem('isAdmin') === 'true' ? `
                     <button onclick="openEditEventModal('${date}', ${index})">수정</button>
                     <button onclick="openDeleteEventModal('${date}', ${index})">삭제</button>
-                ` : ''}
-            </div>
-        `).join('');
-    }
+                </div>`;
+            dateDiv.appendChild(eventDiv);
+        });
+
+        datesDiv.appendChild(dateDiv);
+    });
 }
 
-function openAddEventModal(date) {
-    document.getElementById('addEventDate').value = date;
-    document.getElementById('addEventDetails').value = '';
-    document.getElementById('editEventModal').style.display = 'none';
-    document.getElementById('deleteEventModal').style.display = 'none';
-    document.getElementById('addEventModal').style.display = 'block';
-}
-
-function saveNewEvent() {
+async function saveNewEvent() {
     const date = document.getElementById('addEventDate').value;
     const details = document.getElementById('addEventDetails').value;
     if (!date || !details) {
@@ -79,28 +68,17 @@ function saveNewEvent() {
         return;
     }
 
-    let events = JSON.parse(localStorage.getItem('events')) || {};
-    if (!events[date]) {
-        events[date] = [];
-    }
-    events[date].push(details);
-    localStorage.setItem('events', JSON.stringify(events));
+    const eventsRef = doc(firestore, 'events', date);
+    const eventData = (await getDocs(collection(firestore, 'events', date))).docs.map(doc => doc.data()) || { events: [] };
+    
+    eventData.events.push(details);
+    
+    await updateDoc(eventsRef, { events: eventData.events });
     closeModal('addEventModal');
     generateDates();
 }
 
-function openEditEventModal(date, index) {
-    const events = JSON.parse(localStorage.getItem('events')) || {};
-    const details = events[date] ? events[date][index] : '';
-    document.getElementById('editEventDate').value = date;
-    document.getElementById('editEventDetails').value = details;
-    document.getElementById('editEventIndex').value = index;
-    document.getElementById('addEventModal').style.display = 'none';
-    document.getElementById('deleteEventModal').style.display = 'none';
-    document.getElementById('editEventModal').style.display = 'block';
-}
-
-function updateEvent() {
+async function updateEvent() {
     const date = document.getElementById('editEventDate').value;
     const details = document.getElementById('editEventDetails').value;
     const index = document.getElementById('editEventIndex').value;
@@ -109,40 +87,55 @@ function updateEvent() {
         return;
     }
 
-    let events = JSON.parse(localStorage.getItem('events')) || {};
-    if (!events[date]) {
-        events[date] = [];
-    }
-    events[date][index] = details;
-    localStorage.setItem('events', JSON.stringify(events));
+    const eventsRef = doc(firestore, 'events', date);
+    const eventData = (await getDocs(collection(firestore, 'events', date))).docs.map(doc => doc.data()) || { events: [] };
+    
+    eventData.events[index] = details;
+    
+    await updateDoc(eventsRef, { events: eventData.events });
     closeModal('editEventModal');
     generateDates();
+}
+
+async function confirmDeleteEvent() {
+    const date = document.getElementById('deleteEventDate').value;
+    const index = document.getElementById('deleteEventIndex').value;
+
+    const eventsRef = doc(firestore, 'events', date);
+    const eventData = (await getDocs(collection(firestore, 'events', date))).docs.map(doc => doc.data()) || { events: [] };
+    
+    eventData.events.splice(index, 1);
+    
+    if (eventData.events.length === 0) {
+        await deleteDoc(eventsRef);
+    } else {
+        await updateDoc(eventsRef, { events: eventData.events });
+    }
+
+    closeModal('deleteEventModal');
+    generateDates();
+}
+
+function openEditEventModal(date, index) {
+    document.getElementById('editEventDate').value = date;
+    document.getElementById('editEventIndex').value = index;
+    document.getElementById('editEventDetails').value = document.querySelector(`.date-entry[date="${date}"] .event-item:nth-child(${index + 1})`).innerText.trim();
+    openModal('editEventModal');
 }
 
 function openDeleteEventModal(date, index) {
     document.getElementById('deleteEventDate').value = date;
     document.getElementById('deleteEventIndex').value = index;
-    document.getElementById('deleteEventMessage').innerText = `정말로 '${index + 1}번 일정'을 삭제하시겠습니까?`;
-    document.getElementById('addEventModal').style.display = 'none';
-    document.getElementById('editEventModal').style.display = 'none';
-    document.getElementById('deleteEventModal').style.display = 'block';
+    document.getElementById('deleteEventMessage').innerText = `정말로 ${date}의 일정을 삭제하시겠습니까?`;
+    openModal('deleteEventModal');
 }
 
-function confirmDeleteEvent() {
-    const date = document.getElementById('deleteEventDate').value;
-    const index = document.getElementById('deleteEventIndex').value;
+function openAddEventModal() {
+    openModal('addEventModal');
+}
 
-    let events = JSON.parse(localStorage.getItem('events')) || {};
-    if (!events[date]) {
-        return;
-    }
-    events[date].splice(index, 1);
-    if (events[date].length === 0) {
-        delete events[date];
-    }
-    localStorage.setItem('events', JSON.stringify(events));
-    closeModal('deleteEventModal');
-    generateDates();
+function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
 }
 
 function closeModal(modalId) {
