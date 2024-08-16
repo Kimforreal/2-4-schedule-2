@@ -1,4 +1,4 @@
-import { auth, firestore, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from './firebase-config.js';
+import { firestore, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from './firebase-config.js';
 
 const PASSWORD = '1014'; // 비밀번호 설정
 const PASSWORD_FIELD_ID = 'passwordInput';
@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeUI() {
+    // 기본적으로 버튼과 스케줄 컨테이너를 숨깁니다
     document.getElementById(SCHEDULE_CONTAINER_ID).style.display = 'none';
     document.getElementById(ADD_EVENT_BUTTON_ID).style.display = 'none';
     generateDates();
@@ -18,6 +19,7 @@ function initializeUI() {
 function verifyPassword() {
     const password = document.getElementById(PASSWORD_FIELD_ID).value;
     if (password === PASSWORD) {
+        // 비밀번호가 맞으면 인증 섹션을 숨기고, 스케줄 컨테이너와 버튼을 보이게 합니다
         document.getElementById('authSection').style.display = 'none';
         document.getElementById(SCHEDULE_CONTAINER_ID).style.display = 'block';
         document.getElementById(ADD_EVENT_BUTTON_ID).style.display = 'inline'; // 버튼 보이기
