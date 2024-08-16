@@ -15,12 +15,8 @@
 <body>
     <div id="container">
         <h1>2-4 일정</h1>
-        <div id="authSection">
-            <input type="password" id="passwordInput" placeholder="비밀번호 입력">
-            <button onclick="verifyPassword()">확인</button>
-        </div>
-        <div id="scheduleContainer" style="display:none;">
-            <button id="addEventButton" style="display:none;" onclick="openAddEventModal()">일정 추가</button>
+        <div id="scheduleContainer">
+            <button id="addEventButton" onclick="openAddEventModal()">일정 추가</button>
             <div id="dates"></div>
             <div id="modals">
                 <div id="addEventModal" class="modal">
