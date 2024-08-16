@@ -2,16 +2,25 @@ const PASSWORD = '1014';
 const TWO_WEEKS = 14; // 2주
 
 document.addEventListener('DOMContentLoaded', () => {
-    generateDates();
+    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    if (isAdmin) {
+        document.getElementById('scheduleContainer').style.display = 'block';
+        document.getElementById('scheduleEditor').style.display = 'block';
+        generateDates();
+    } else {
+        document.getElementById('scheduleContainer').style.display = 'block';
+        generateDates();
+    }
 });
 
 function checkPassword() {
     const password = document.getElementById('password').value;
     if (password === PASSWORD) {
+        localStorage.setItem('isAdmin', 'true');
         document.getElementById('passwordPrompt').style.display = 'none';
         document.getElementById('scheduleContainer').style.display = 'block';
         document.getElementById('scheduleEditor').style.display = 'block';
-        loadEvents();
+        generateDates();
     } else {
         alert('비밀번호가 틀렸습니다.');
     }
@@ -28,11 +37,12 @@ function generateDates() {
             <div class="date-entry">
                 <strong>${dateString}</strong>
                 <div id="events-${dateString}"></div>
-                <button onclick="editEvent('${dateString}')">일정 추가/수정</button>
+                ${localStorage.getItem('isAdmin') === 'true' ? `<button onclick="editEvent('${dateString}')">일정 추가/수정</button>` : ''}
             </div>
         `;
     }
     document.getElementById('dates').innerHTML = dateHTML;
+    loadEvents();
 }
 
 function loadEvents() {
