@@ -16,12 +16,25 @@
         </div>
         <div id="scheduleContainer" style="display:none;">
             <div id="dates"></div>
-            <div id="scheduleEditor" style="display:none;">
-                <h2>일정 추가/수정</h2>
-                <input type="text" id="newEventDate" placeholder="날짜 (YYYY-MM-DD)">
-                <textarea id="newEventDetails" placeholder="일정"></textarea>
-                <button onclick="saveEvent()">저장</button>
-                <button onclick="cancelEdit()">취소</button>
+            <div id="modals">
+                <div id="addEventModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal('addEventModal')">&times;</span>
+                        <h2>일정 추가</h2>
+                        <input type="text" id="addEventDate" placeholder="날짜 (YYYY-MM-DD)">
+                        <textarea id="addEventDetails" placeholder="일정"></textarea>
+                        <button onclick="saveNewEvent()">저장</button>
+                    </div>
+                </div>
+                <div id="editEventModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal('editEventModal')">&times;</span>
+                        <h2>일정 수정</h2>
+                        <input type="text" id="editEventDate" placeholder="날짜 (YYYY-MM-DD)">
+                        <textarea id="editEventDetails" placeholder="일정"></textarea>
+                        <button onclick="updateEvent()">수정</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
