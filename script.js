@@ -1,32 +1,14 @@
 import { firestore, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from './firebase-config.js';
 
-const PASSWORD = '1014'; // 비밀번호 설정
-const PASSWORD_FIELD_ID = 'passwordInput';
-const SCHEDULE_CONTAINER_ID = 'scheduleContainer';
-const ADD_EVENT_BUTTON_ID = 'addEventButton';
-
 document.addEventListener('DOMContentLoaded', () => {
     initializeUI();
 });
 
 function initializeUI() {
-    // 기본적으로 버튼과 스케줄 컨테이너를 숨깁니다
-    document.getElementById(SCHEDULE_CONTAINER_ID).style.display = 'none';
-    document.getElementById(ADD_EVENT_BUTTON_ID).style.display = 'none';
+    // 일정과 버튼을 기본적으로 보이도록 설정합니다
+    document.getElementById('scheduleContainer').style.display = 'block';
+    document.getElementById('addEventButton').style.display = 'inline';
     generateDates();
-}
-
-function verifyPassword() {
-    const password = document.getElementById(PASSWORD_FIELD_ID).value;
-    if (password === PASSWORD) {
-        // 비밀번호가 맞으면 인증 섹션을 숨기고, 스케줄 컨테이너와 버튼을 보이게 합니다
-        document.getElementById('authSection').style.display = 'none';
-        document.getElementById(SCHEDULE_CONTAINER_ID).style.display = 'block';
-        document.getElementById(ADD_EVENT_BUTTON_ID).style.display = 'inline'; // 버튼 보이기
-        generateDates();
-    } else {
-        alert('비밀번호가 올바르지 않습니다.');
-    }
 }
 
 async function generateDates() {
@@ -47,10 +29,8 @@ async function generateDates() {
             eventDiv.classList.add('event-item');
             eventDiv.innerHTML = `${event}
                 <div class="event-buttons">
-                    ${document.getElementById(ADD_EVENT_BUTTON_ID).style.display === 'inline'
-                        ? `<button onclick="openEditEventModal('${date}', ${index})">수정</button>
-                           <button onclick="openDeleteEventModal('${date}', ${index})">삭제</button>`
-                        : ''}
+                    <button onclick="openEditEventModal('${date}', ${index})">수정</button>
+                    <button onclick="openDeleteEventModal('${date}', ${index})">삭제</button>
                 </div>`;
             dateDiv.appendChild(eventDiv);
         });
