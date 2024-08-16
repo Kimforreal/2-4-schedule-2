@@ -5,11 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const isAdmin = localStorage.getItem('isAdmin') === 'true';
     if (isAdmin) {
         document.getElementById('scheduleContainer').style.display = 'block';
-        document.getElementById('scheduleEditor').style.display = 'block';
+        generateDates();
     } else {
         document.getElementById('scheduleContainer').style.display = 'block';
+        generateDates();
     }
-    generateDates();
 });
 
 function checkPassword() {
@@ -18,7 +18,6 @@ function checkPassword() {
         localStorage.setItem('isAdmin', 'true');
         document.getElementById('passwordPrompt').style.display = 'none';
         document.getElementById('scheduleContainer').style.display = 'block';
-        document.getElementById('scheduleEditor').style.display = 'block';
         generateDates();
     } else {
         alert('비밀번호가 틀렸습니다.');
@@ -38,7 +37,8 @@ function generateDates() {
                 <div id="events-${dateString}"></div>
                 <div class="event-buttons">
                     ${localStorage.getItem('isAdmin') === 'true' ? `
-                        <button onclick="editEvent('${dateString}')">일정 추가/수정</button>
+                        <button onclick="openAddEventModal('${dateString}')">일정 추가</button>
+                        <button onclick="openEditEventModal('${dateString}')">일정 수정</button>
                         <button onclick="deleteEvent('${dateString}')">삭제</button>
                     ` : ''}
                 </div>
@@ -57,9 +57,16 @@ function loadEvents() {
     }
 }
 
-function saveEvent() {
-    const date = document.getElementById('newEventDate').value;
-    const details = document.getElementById('newEventDetails').value;
+function openAddEventModal(date) {
+    document.getElementById('addEventDate').value = date;
+    document.getElementById('addEventDetails').value = '';
+    document.getElementById('editEventModal').style.display = 'none';
+    document.getElementById('addEventModal').style.display = 'block';
+}
+
+function saveNewEvent() {
+    const date = document.getElementById('addEventDate').value;
+    const details = document.getElementById('addEventDetails').value;
     if (!date || !details) {
         alert('날짜와 일정을 입력하세요.');
         return;
@@ -71,16 +78,32 @@ function saveEvent() {
     }
     events[date].push(details);
     localStorage.setItem('events', JSON.stringify(events));
-    document.getElementById('newEventDate').value = '';
-    document.getElementById('newEventDetails').value = '';
+    closeModal('addEventModal');
     generateDates();
 }
 
-function editEvent(date) {
+function openEditEventModal(date) {
     const events = JSON.parse(localStorage.getItem('events')) || {};
     const details = (events[date] || []).join('\n');
-    document.getElementById('newEventDate').value = date;
-    document.getElementById('newEventDetails').value = details;
+    document.getElementById('editEventDate').value = date;
+    document.getElementById('editEventDetails').value = details;
+    document.getElementById('addEventModal').style.display = 'none';
+    document.getElementById('editEventModal').style.display = 'block';
+}
+
+function updateEvent() {
+    const date = document.getElementById('editEventDate').value;
+    const details = document.getElementById('editEventDetails').value.split('\n');
+    if (!date || !details.length) {
+        alert('날짜와 일정을 입력하세요.');
+        return;
+    }
+
+    let events = JSON.parse(localStorage.getItem('events')) || {};
+    events[date] = details;
+    localStorage.setItem('events', JSON.stringify(events));
+    closeModal('editEventModal');
+    generateDates();
 }
 
 function deleteEvent(date) {
@@ -90,7 +113,6 @@ function deleteEvent(date) {
     generateDates();
 }
 
-function cancelEdit() {
-    document.getElementById('newEventDate').value = '';
-    document.getElementById('newEventDetails').value = '';
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
 }
