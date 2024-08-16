@@ -3,18 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2주 일정 관리</title>
+    <title>2-4 일정</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDK -->
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js"></script>
+    <!-- Firebase Config -->
+    <script defer src="firebase-config.js"></script>
 </head>
 <body>
     <div id="container">
-        <h1>2주 일정 관리</h1>
-        <div id="passwordPrompt">
-            <label for="password">비밀번호:</label>
-            <input type="password" id="password">
-            <button onclick="checkPassword()">확인</button>
+        <h1>2-4 일정</h1>
+        <div id="authSection">
+            <input type="password" id="passwordInput" placeholder="비밀번호 입력">
+            <button onclick="verifyPassword()">확인</button>
         </div>
         <div id="scheduleContainer" style="display:none;">
+            <button id="addEventButton" onclick="openAddEventModal()">일정 추가</button>
             <div id="dates"></div>
             <div id="modals">
                 <div id="addEventModal" class="modal">
