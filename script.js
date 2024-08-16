@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function initializeAuth() {
     onAuthStateChanged(auth, user => {
         if (user) {
-            document.getElementById('authSection').style.display = 'none';
             document.getElementById(SCHEDULE_CONTAINER_ID).style.display = 'block';
             generateDates();
         } else {
@@ -52,9 +51,9 @@ async function generateDates() {
             eventDiv.classList.add('event-item');
             eventDiv.innerHTML = `${event}
                 <div class="event-buttons">
-                    ${document.getElementById(ADD_EVENT_BUTTON_ID).style.display === 'inline' 
+                    ${document.getElementById(ADD_EVENT_BUTTON_ID).style.display === 'inline'
                         ? `<button onclick="openEditEventModal('${date}', ${index})">수정</button>
-                           <button onclick="openDeleteEventModal('${date}', ${index})">삭제</button>` 
+                           <button onclick="openDeleteEventModal('${date}', ${index})">삭제</button>`
                         : ''}
                 </div>`;
             dateDiv.appendChild(eventDiv);
